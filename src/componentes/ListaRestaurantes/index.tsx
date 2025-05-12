@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import IRestaurante from '../../interfaces/IRestaurante';
+import type IRestaurante from '../../interfaces/IRestaurante';
 import style from './ListaRestaurantes.module.scss';
 import Restaurante from './Restaurante';
 import type { IPaginacao } from '../../interfaces/IPaginacao';
