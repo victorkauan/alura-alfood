@@ -1,15 +1,31 @@
-import { useState, type FormEvent } from "react"
+import { useEffect, useState, type FormEvent } from "react"
 import axios from "axios"
 import { Button, TextField } from "@mui/material"
+import {useParams} from "react-router-dom"
+import type  IRestaurante from "../../../interfaces/IRestaurante"
 
 const FormularioRestaurante = () => {
+  const params = useParams()
+
   const [name, setName] = useState<string>('')
+
+  useEffect(() => {
+    if (params.id) {
+      axios.get<IRestaurante>(`http://localhost:8000/api/v2/restaurantes/${params.id}/`)
+        .then(response => setName(response.data.nome))
+    }
+  }, [params.id])
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
-    axios.post('http://localhost:8000/api/v2/restaurantes/', { nome: name })
-      .then(() => alert('Restaurante cadastrado com sucesso.'))
+    if (params.id) {
+      axios.patch(`http://localhost:8000/api/v2/restaurantes/${params.id}/`, { nome: name })
+        .then(() => alert('Restaurante atualizado com sucesso.'))
+    } else {
+      axios.post('http://localhost:8000/api/v2/restaurantes/', { nome: name })
+        .then(() => alert('Restaurante cadastrado com sucesso.'))
+    }
   }
 
   return (
