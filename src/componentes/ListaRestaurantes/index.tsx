@@ -7,23 +7,18 @@ import type { IPaginacao } from '../../interfaces/IPaginacao';
 
 const ListaRestaurantes = () => {
   const [restaurantes, setRestaurantes] = useState<IRestaurante[]>([])
-  const [nextPageUrl, setNextPageUrl] = useState<string>('')
+  const [previousPageUrl, setPreviousPageUrl] = useState<string | null>(null)
+  const [nextPageUrl, setNextPageUrl] = useState<string | null>(null)
 
   useEffect(() => {
-    axios.get<IPaginacao<IRestaurante>>('http://localhost:8000/api/v1/restaurantes/')
-      .then(response => {
-        setRestaurantes(response.data.results)
-        setNextPageUrl(response.data.next)
-      })
-      .catch(error => {
-        console.log(error)
-      })
+    fetchRestaurants('http://localhost:8000/api/v1/restaurantes/')
   }, [])
 
-  const seeMore = () => {
-    axios.get<IPaginacao<IRestaurante>>(nextPageUrl)
+  const fetchRestaurants = (url: string) => {
+    axios.get<IPaginacao<IRestaurante>>(url)
       .then(response => {
-        setRestaurantes([...restaurantes, ...response.data.results])
+        setRestaurantes(response.data.results)
+        setPreviousPageUrl(response.data.previous)
         setNextPageUrl(response.data.next)
       })
       .catch(error => {
@@ -34,7 +29,18 @@ const ListaRestaurantes = () => {
   return (<section className={style.ListaRestaurantes}>
     <h1>Os restaurantes mais <em>bacanas</em>!</h1>
     {restaurantes?.map(item => <Restaurante restaurante={item} key={item.id} />)}
-    {nextPageUrl && <button onClick={seeMore}>Ver mais</button>}
+    <button
+      onClick={() => previousPageUrl && fetchRestaurants(previousPageUrl)}
+      disabled={!previousPageUrl}
+    >
+      Página anterior
+    </button>
+    <button
+      onClick={() => nextPageUrl && fetchRestaurants(nextPageUrl)}
+      disabled={!nextPageUrl}
+    >
+      Próxima página
+    </button>
   </section>)
 }
 
